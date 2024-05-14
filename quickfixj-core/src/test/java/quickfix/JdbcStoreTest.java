@@ -169,4 +169,22 @@ public class JdbcStoreTest extends AbstractMessageStoreTest {
         store.get(1, 1, messages);
         assertEquals("MESSAGE2", messages.get(0));
     }
+
+    public void testWriteBackMessageUpdate() throws Exception {
+        JdbcStore jdbcStore = (JdbcStore) getMessageStoreFactory().create(getSessionID());
+        JdbcWriteBackStore store = new JdbcWriteBackStore(jdbcStore, null);
+        store.reset();
+
+        assertTrue(store.set(1, "MESSAGE1"));
+        assertTrue(store.set(1, "MESSAGE1-1"));
+        assertTrue(store.set(2, "MESSAGE2"));
+        assertTrue(store.set(3, "MESSAGE3"));
+
+        Thread.sleep(200);
+        List<String> messages = new ArrayList<>();
+        store.get(1, 3, messages);
+        assertEquals("MESSAGE1-1", messages.get(0));
+        assertEquals("MESSAGE2", messages.get(1));
+        assertEquals("MESSAGE3", messages.get(2));
+    }
 }
